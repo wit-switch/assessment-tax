@@ -80,7 +80,7 @@ var _ = Describe("Error", func() {
 			Context("not existing in map response list", func() {
 				When("with error message is empty", func() {
 					It("should return 500 with unknown message", func() {
-						arg := errorx.ErrTaxDeductNotFound.WithError(errorx.New(""))
+						arg := errorx.ErrUnauthorized.WithError(errorx.New(""))
 						actual := httphdl.AsErrorResponse[any](arg)
 
 						expected := &httphdl.ResponseError[any]{
@@ -96,12 +96,12 @@ var _ = Describe("Error", func() {
 				})
 				When("with wrap error", func() {
 					It("should return 500 with unknown message", func() {
-						arg := errorx.Wrap(errorx.ErrTaxDeductNotFound.WithError(errorx.New("error")), 0)
+						arg := errorx.Wrap(errorx.ErrUnauthorized.WithError(errorx.New("error")), 0)
 						actual := httphdl.AsErrorResponse[any](arg)
 
 						expected := &httphdl.ResponseError[any]{
 							BaseResponse: httphdl.BaseResponse{
-								Code:    httphdl.ResponseCode(http.StatusInternalServerError, errorx.CodeTaxDeductNotFound.Int()),
+								Code:    httphdl.ResponseCode(http.StatusInternalServerError, errorx.CodeUnauthorized.Int()),
 								Message: "error",
 							},
 						}
@@ -112,7 +112,7 @@ var _ = Describe("Error", func() {
 				})
 
 				It("should return 500 with error message", func() {
-					arg := errorx.ErrTaxDeductNotFound.WithError(errorx.New("error"))
+					arg := errorx.ErrUnauthorized.WithError(errorx.New("error"))
 					actual := httphdl.AsErrorResponse[any](arg)
 
 					expected := &httphdl.ResponseError[any]{
@@ -163,11 +163,11 @@ var _ = Describe("Error", func() {
 				c := app.NewContext(req, rec)
 				httphdl.HTTPErrorHandler(errorx.ErrTaxDeductNotFound, c)
 
-				Expect(500).To(Equal(rec.Code))
+				Expect(404).To(Equal(rec.Code))
 				actual, err := compacJSON(rec.Body.String())
 				Expect(err).NotTo(HaveOccurred())
 
-				expectedResp := `{"code":"500100","message":"error"}`
+				expectedResp := `{"code":"404100","message":"tax deduct not found"}`
 				expected, err := compacJSON(expectedResp)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(actual).To(Equal(expected))

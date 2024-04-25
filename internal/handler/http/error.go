@@ -21,6 +21,10 @@ var (
 			message:    msgValidationFail,
 			httpStatus: http.StatusBadRequest,
 		},
+		errorx.CodeTaxDeductNotFound: {
+			message:    msgTaxDeductNotFound,
+			httpStatus: http.StatusNotFound,
+		},
 	}
 )
 
