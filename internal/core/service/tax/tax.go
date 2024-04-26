@@ -28,7 +28,7 @@ func (s *Services) Calculate(ctx context.Context, body domain.TaxCalculate) (*do
 
 	totalIncome := body.TotalIncome.Sub(personal)
 
-	var totalTax decimal.Decimal
+	var totalTax, taxRefund, zero decimal.Decimal
 	for _, taxRate := range taxRates {
 		if totalIncome.Cmp(taxRate.MinIncome) > 0 {
 			diff := totalIncome.Sub(taxRate.MinIncome)
@@ -37,7 +37,14 @@ func (s *Services) Calculate(ctx context.Context, body domain.TaxCalculate) (*do
 		}
 	}
 
+	tax := totalTax.Sub(body.Wht)
+	if tax.Cmp(zero) < 0 {
+		taxRefund = tax.Abs()
+		tax = zero
+	}
+
 	return &domain.Tax{
-		Tax: totalTax,
+		Tax:       tax,
+		TaxRefund: taxRefund,
 	}, nil
 }

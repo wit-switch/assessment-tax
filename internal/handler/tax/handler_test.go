@@ -157,6 +157,90 @@ var _ = Describe("Tax", func() {
 							{
 								"field":"totalIncome",
 								"message":"totalIncome should greater than or equal 0"
+							},
+							{
+								"field":"wht",
+								"message":"wht should less than or equal totalIncome"
+							}
+						]
+					}`
+					expected, err := compacJSON(expectedResp)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(actual).To(Equal(expected))
+				})
+			})
+
+			Context("with wht less than zero", func() {
+				BeforeEach(func() {
+					bodyJSON = `{
+						"totalIncome": 1.0,
+						"wht": -2.0,
+						"allowances": [
+							{
+								"allowanceType": "donation",
+								"amount": 0.0
+							}
+						]
+					}`
+				})
+				It("should return 400 validate error with field error", func() {
+					code, respBody := request(
+						route,
+						bytes.NewBufferString(bodyJSON),
+						app,
+					)
+					Expect(http.StatusBadRequest).To(Equal(code))
+
+					actual, err := compacJSON(respBody)
+					Expect(err).NotTo(HaveOccurred())
+
+					expectedResp := `{
+						"code":"400001",
+						"message":"validation error",
+						"errors":[
+							{
+								"field":"wht",
+								"message":"wht should greater than or equal 0"
+							}
+						]
+					}`
+					expected, err := compacJSON(expectedResp)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(actual).To(Equal(expected))
+				})
+			})
+
+			Context("with wht less than or equal totalIncome", func() {
+				BeforeEach(func() {
+					bodyJSON = `{
+						"totalIncome": 1.0,
+						"wht": 2.0,
+						"allowances": [
+							{
+								"allowanceType": "donation",
+								"amount": 0.0
+							}
+						]
+					}`
+				})
+				It("should return 400 validate error with field error", func() {
+					code, respBody := request(
+						route,
+						bytes.NewBufferString(bodyJSON),
+						app,
+					)
+					Expect(http.StatusBadRequest).To(Equal(code))
+
+					actual, err := compacJSON(respBody)
+					Expect(err).NotTo(HaveOccurred())
+
+					expectedResp := `{
+						"code":"400001",
+						"message":"validation error",
+						"errors":[
+							{
+								"field":"wht",
+								"message":"wht should less than or equal totalIncome"
 							}
 						]
 					}`
@@ -186,6 +270,57 @@ var _ = Describe("Tax", func() {
 					expectedResp := `{
 						"code":"500000",
 						"message":"error"
+					}`
+					expected, err := compacJSON(expectedResp)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(actual).To(Equal(expected))
+				})
+			})
+
+			Context("with have tax refund", func() {
+				BeforeEach(func() {
+					bodyJSON = `{
+						"totalIncome": 450000.0,
+						"wht": 25000.0,
+						"allowances": [
+							{
+								"allowanceType": "donation",
+								"amount": 0.0
+							}
+						]
+					}`
+
+					mockCalculate = mockTaxService.EXPECT().
+						Calculate(ctx, domain.TaxCalculate{
+							TotalIncome: decimal.NewFromFloat(450000),
+							Wht:         decimal.NewFromFloat(25000),
+							Allowances: []domain.Allowance{
+								{
+									AllowanceType: domain.TaxDeductTypeDonation,
+									Amount:        decimal.NewFromFloat(0),
+								},
+							},
+						})
+
+					mockTax.Tax = decimal.Decimal{}
+					mockTax.TaxRefund = decimal.NewFromFloat(1000)
+				})
+				It("should return tax refund", func() {
+					mockCalculate.Return(mockTax, nil)
+
+					code, respBody := request(
+						route,
+						bytes.NewBufferString(bodyJSON),
+						app,
+					)
+					Expect(http.StatusOK).To(Equal(code))
+
+					actual, err := compacJSON(respBody)
+					Expect(err).NotTo(HaveOccurred())
+
+					expectedResp := `{
+						"tax":0,
+						"taxRefund":1000
 					}`
 					expected, err := compacJSON(expectedResp)
 					Expect(err).NotTo(HaveOccurred())

@@ -34,7 +34,8 @@ type Allowance struct {
 }
 
 type Tax struct {
-	Tax decimal.Decimal
+	Tax       decimal.Decimal
+	TaxRefund decimal.Decimal
 }
 
 type TaxDeduct struct {

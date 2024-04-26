@@ -38,11 +38,15 @@ definitions:
         minimum: 0
         type: number
       wht:
+        example: 25000
+        minimum: 0
         type: number
     type: object
   tax.taxCalculateResponse:
     properties:
       tax:
+        type: number
+      taxRefund:
         type: number
     type: object
   validator.Field:

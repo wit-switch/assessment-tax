@@ -34,6 +34,7 @@ func (d *dto) toAllowancesDomain(a []allowance) []domain.Allowance {
 
 func (d *dto) toTaxCalculateResponse(a domain.Tax) taxCalculateResponse {
 	return taxCalculateResponse{
-		Tax: a.Tax.InexactFloat64(),
+		Tax:       a.Tax.InexactFloat64(),
+		TaxRefund: a.TaxRefund.InexactFloat64(),
 	}
 }

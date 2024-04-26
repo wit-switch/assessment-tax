@@ -5,6 +5,7 @@ go 1.22.2
 require (
 	github.com/go-errors/errors v1.5.1
 	github.com/go-playground/validator/v10 v10.19.0
+	github.com/iancoleman/strcase v0.3.0
 	github.com/jackc/pgx-shopspring-decimal v0.0.0-20220624020537-1d36b5a1853e
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/labstack/echo/v4 v4.11.4

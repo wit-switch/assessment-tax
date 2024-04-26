@@ -125,7 +125,9 @@ const docTemplate = `{
                     "example": 500000
                 },
                 "wht": {
-                    "type": "number"
+                    "type": "number",
+                    "minimum": 0,
+                    "example": 25000
                 }
             }
         },
@@ -133,6 +135,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "tax": {
+                    "type": "number"
+                },
+                "taxRefund": {
                     "type": "number"
                 }
             }
