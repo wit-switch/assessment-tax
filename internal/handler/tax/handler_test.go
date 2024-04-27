@@ -40,7 +40,8 @@ var _ = Describe("Tax", func() {
 		})
 
 		app = echo.New()
-		app.Validator = httphdl.NewValidator(validator.New())
+		validate, _ := validator.New()
+		app.Validator = httphdl.NewValidator(validate)
 		app.HTTPErrorHandler = httphdl.HTTPErrorHandler
 
 		ctx = context.Background()
@@ -241,6 +242,128 @@ var _ = Describe("Tax", func() {
 							{
 								"field":"wht",
 								"message":"wht should less than or equal totalIncome"
+							}
+						]
+					}`
+					expected, err := compacJSON(expectedResp)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(actual).To(Equal(expected))
+				})
+			})
+
+			Context("with allowances is empty", func() {
+				BeforeEach(func() {
+					bodyJSON = `{
+						"totalIncome": 500000.0,
+						"wht": 0.0
+					}`
+				})
+				It("should return 400 validate error with field error", func() {
+					code, respBody := request(
+						route,
+						bytes.NewBufferString(bodyJSON),
+						app,
+					)
+					Expect(http.StatusBadRequest).To(Equal(code))
+
+					actual, err := compacJSON(respBody)
+					Expect(err).NotTo(HaveOccurred())
+
+					expectedResp := `{
+						"code":"400001",
+						"message":"validation error",
+						"errors":[
+							{
+								"field":"allowances",
+								"message":"allowances is required"
+							}
+						]
+					}`
+					expected, err := compacJSON(expectedResp)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(actual).To(Equal(expected))
+				})
+			})
+
+			Context("with allowances is not unique", func() {
+				BeforeEach(func() {
+					bodyJSON = `{
+						"totalIncome": 500000.0,
+						"wht": 0.0,
+						"allowances": [
+							{
+								"allowanceType": "donation",
+								"amount": 0.0
+							},
+							{
+								"allowanceType": "donation",
+								"amount": 0.0
+							}
+						]
+					}`
+				})
+				It("should return 400 validate error with field error", func() {
+					code, respBody := request(
+						route,
+						bytes.NewBufferString(bodyJSON),
+						app,
+					)
+					Expect(http.StatusBadRequest).To(Equal(code))
+
+					actual, err := compacJSON(respBody)
+					Expect(err).NotTo(HaveOccurred())
+
+					expectedResp := `{
+						"code":"400001",
+						"message":"validation error",
+						"errors":[
+							{
+								"field":"allowances",
+								"message":"allowances is unique"
+							}
+						]
+					}`
+					expected, err := compacJSON(expectedResp)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(actual).To(Equal(expected))
+				})
+			})
+
+			Context("with allowanceType is not valide", func() {
+				BeforeEach(func() {
+					bodyJSON = `{
+						"totalIncome": 500000.0,
+						"wht": 0.0,
+						"allowances": [
+							{
+								"allowanceType": "xxx",
+								"amount": 0.0
+							},
+							{
+								"allowanceType": "donation",
+								"amount": 0.0
+							}
+						]
+					}`
+				})
+				It("should return 400 validate error with field error", func() {
+					code, respBody := request(
+						route,
+						bytes.NewBufferString(bodyJSON),
+						app,
+					)
+					Expect(http.StatusBadRequest).To(Equal(code))
+
+					actual, err := compacJSON(respBody)
+					Expect(err).NotTo(HaveOccurred())
+
+					expectedResp := `{
+						"code":"400001",
+						"message":"validation error",
+						"errors":[
+							{
+								"field":"allowanceType",
+								"message":"allowanceType [xxx] is not valide"
 							}
 						]
 					}`

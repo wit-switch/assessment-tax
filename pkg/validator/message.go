@@ -25,6 +25,8 @@ func getValidatorMessage(v validator.FieldError) string {
 		return fmt.Sprintf("%s should less than or equal %s", v.Field(), v.Param())
 	case "ltecsfield":
 		return fmt.Sprintf("%s should less than or equal %s", v.Field(), strcase.ToLowerCamel(v.Param()))
+	case "with-allowance-type":
+		return fmt.Sprintf("%s [%s] is not valide", v.Field(), v.Value())
 	default:
 		return fmt.Sprintf("%s is %s", v.Field(), v.Tag())
 	}

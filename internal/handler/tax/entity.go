@@ -3,12 +3,12 @@ package tax
 type taxCalculateRequest struct {
 	TotalIncome float64     `json:"totalIncome" validate:"gte=0" example:"500000.0"`
 	Wht         float64     `json:"wht" validate:"gte=0,ltecsfield=TotalIncome" example:"25000.0"`
-	Allowances  []allowance `json:"allowances"`
+	Allowances  []allowance `json:"allowances" validate:"required,gt=0,unique=AllowanceType,dive"`
 }
 
 type allowance struct {
-	AllowanceType string  `json:"allowanceType"`
-	Amount        float64 `json:"amount"`
+	AllowanceType string  `json:"allowanceType" validate:"required,with-allowance-type" example:"donation"`
+	Amount        float64 `json:"amount" validate:"gte=0" example:"200000.0"`
 }
 
 type taxCalculateResponse struct {

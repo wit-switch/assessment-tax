@@ -24,9 +24,23 @@ func (s *Services) Calculate(ctx context.Context, body domain.TaxCalculate) (*do
 		return nil, err
 	}
 
-	personal := personalDeduct.Amount
+	donationDeduct, err := GetTaxDeductByType(taxDeductMap, domain.TaxDeductTypeDonation)
+	if err != nil {
+		return nil, err
+	}
 
-	totalIncome := body.TotalIncome.Sub(personal)
+	allowanceMap := make(map[domain.TaxDeductType]decimal.Decimal)
+	for _, v := range body.Allowances {
+		allowanceMap[v.AllowanceType] = v.Amount
+	}
+
+	personal := personalDeduct.Amount
+	donation, err := GetAllowanceAmount(ctx, donationDeduct, allowanceMap[domain.TaxDeductTypeDonation])
+	if err != nil {
+		return nil, err
+	}
+
+	totalIncome := body.TotalIncome.Sub(personal).Sub(donation)
 
 	var totalTax, taxRefund, zero decimal.Decimal
 	for _, taxRate := range taxRates {

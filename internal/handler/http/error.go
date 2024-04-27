@@ -25,6 +25,14 @@ var (
 			message:    msgTaxDeductNotFound,
 			httpStatus: http.StatusNotFound,
 		},
+		errorx.CodeAmountMoreThanLimit: {
+			message:    msgAmountMoreThanLimit,
+			httpStatus: http.StatusBadRequest,
+		},
+		errorx.CodeAmountLessThanLimit: {
+			message:    msgAmountLessThanLimit,
+			httpStatus: http.StatusBadRequest,
+		},
 	}
 )
 

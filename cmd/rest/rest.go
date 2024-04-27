@@ -29,6 +29,12 @@ import (
 // @description This is a assessment tax api.
 // @BasePath    /
 func Execute(cfg *config.Config) {
+	validate, err := validator.New()
+	if err != nil {
+		slog.Error("[!] failed to create validate", slog.Any("err", err))
+		os.Exit(1)
+	}
+
 	dbClient, err := infrastructure.NewPostgresClient(context.Background(), cfg.PostgreSQL)
 	if err != nil {
 		slog.Error("[!] failed to connect postgres", slog.Any("err", err))
@@ -52,7 +58,7 @@ func Execute(cfg *config.Config) {
 	e := echo.New()
 
 	e.HTTPErrorHandler = httphdl.HTTPErrorHandler
-	e.Validator = httphdl.NewValidator(validator.New())
+	e.Validator = httphdl.NewValidator(validate)
 	// with no proxy
 	e.IPExtractor = echo.ExtractIPDirect()
 	// with proxies using X-Forwarded-For header
