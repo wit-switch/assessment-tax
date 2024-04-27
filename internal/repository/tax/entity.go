@@ -2,6 +2,7 @@ package tax
 
 import (
 	"database/sql/driver"
+	"time"
 
 	"github.com/wit-switch/assessment-tax/pkg/errorx"
 
@@ -62,4 +63,10 @@ func (ns nullTaxDeductType) Value() (driver.Value, error) {
 
 type getTaxDeduct struct {
 	Type nullTaxDeductType
+}
+
+type updateTaxDeduct struct {
+	Type      taxDeductType
+	Amount    decimal.Decimal
+	UpdatedAt time.Time
 }

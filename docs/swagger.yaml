@@ -68,6 +68,17 @@ definitions:
       tax:
         type: number
     type: object
+  tax.updatePersonalDeductResponse:
+    properties:
+      personalDeduction:
+        type: number
+    type: object
+  tax.updateTaxDeductRequest:
+    properties:
+      amount:
+        minimum: 0
+        type: number
+    type: object
   validator.Field:
     properties:
       field:
@@ -77,10 +88,44 @@ definitions:
     type: object
 info:
   contact: {}
-  description: This is a assessment tax api.
+  description: BasicAuth protects our entity endpoints.
   title: Assessment Tax API
   version: "1.0"
 paths:
+  /admin/deductions/personal:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tax.updateTaxDeductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/tax.updatePersonalDeductResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.ResponseError-array_validator_Field'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.ResponseError-string'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ResponseError-string'
+      security:
+      - BasicAuth: []
+      tags:
+      - admin
   /tax/calculations:
     post:
       consumes:
@@ -113,4 +158,7 @@ paths:
             $ref: '#/definitions/http.ResponseError-string'
       tags:
       - tax
+securityDefinitions:
+  BasicAuth:
+    type: basic
 swagger: "2.0"

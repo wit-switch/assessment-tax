@@ -35,6 +35,10 @@ func (m *Middleware) Logger() echo.MiddlewareFunc {
 			slog.String("duration", c.Response().Header().Get("duration")),
 		}
 
+		if adminUser, ok := ctx.Value(keyBasicAuth).(string); ok && adminUser != "" {
+			logParams = append(logParams, slog.String("admin_username", adminUser))
+		}
+
 		if stackErr, ok := ctx.Value(httphdl.StackCtxKey).(error); ok && stackErr != nil {
 			logParams = append(logParams, slog.Any("error", stackErr))
 		}
