@@ -16,6 +16,61 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/deductions/k-receipt": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.updateTaxDeductRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/admin.updateKReceiptDeductResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.ResponseError-array_validator_Field"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/http.ResponseError-string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.ResponseError-string"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/deductions/personal": {
             "post": {
                 "security": [
@@ -59,13 +114,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/http.ResponseError-string"
+                            "$ref": "#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.ResponseError-string"
+                            "$ref": "#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string"
                         }
                     }
                 }
@@ -109,13 +164,61 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/http.ResponseError-string"
+                            "$ref": "#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.ResponseError-string"
+                            "$ref": "#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/tax/calculations/upload-csv": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tax"
+                ],
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": " ",
+                        "name": "taxFile",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/tax.texes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.ResponseError-array_validator_Field"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string"
                         }
                     }
                 }
@@ -171,6 +274,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "admin.updateKReceiptDeductResponse": {
+            "type": "object",
+            "properties": {
+                "kReceipt": {
+                    "type": "number"
+                }
+            }
+        },
         "admin.updatePersonalDeductResponse": {
             "type": "object",
             "properties": {
@@ -185,6 +296,20 @@ const docTemplate = `{
                 "amount": {
                     "type": "number",
                     "minimum": 0
+                }
+            }
+        },
+        "github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "errors": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
                 }
             }
         },
@@ -205,20 +330,6 @@ const docTemplate = `{
                 }
             }
         },
-        "http.ResponseError-string": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "errors": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "tax.allowance": {
             "type": "object",
             "required": [
@@ -233,6 +344,23 @@ const docTemplate = `{
                     "type": "number",
                     "minimum": 0,
                     "example": 200000
+                }
+            }
+        },
+        "tax.taxCSV": {
+            "type": "object",
+            "required": [
+                "allowanceType"
+            ],
+            "properties": {
+                "tax": {
+                    "type": "number"
+                },
+                "taxRefund": {
+                    "type": "number"
+                },
+                "totalIncome": {
+                    "type": "number"
                 }
             }
         },
@@ -300,28 +428,6 @@ const docTemplate = `{
                 },
                 "tax": {
                     "type": "number"
-                }
-            }
-        },
-        "tax.texes": {
-            "type": "object",
-            "properties": {
-                "texes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/tax.taxCSV"
-                    }
-                }
-            }
-        },
-        "tax.texes": {
-            "type": "object",
-            "properties": {
-                "texes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/tax.taxCSV"
-                    }
                 }
             }
         },

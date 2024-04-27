@@ -20,3 +20,16 @@ func (d *dto) toUpdatePersonalDeductResponse(a domain.TaxDeduct) updatePersonalD
 		PersonalDeduction: a.Amount.InexactFloat64(),
 	}
 }
+
+func (d *dto) toUpdateKReceiptDeductDomain(a updateTaxDeductRequest) domain.UpdateTaxDeduct {
+	return domain.UpdateTaxDeduct{
+		Type:   domain.TaxDeductTypeKReceipt,
+		Amount: decimal.NewFromFloat(a.Amount),
+	}
+}
+
+func (d *dto) toUpdateKReceiptDeductResponse(a domain.TaxDeduct) updateKReceiptDeductResponse {
+	return updateKReceiptDeductResponse{
+		KReceiptDeduction: a.Amount.InexactFloat64(),
+	}
+}

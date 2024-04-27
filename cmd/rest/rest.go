@@ -56,10 +56,7 @@ func Execute(cfg *config.Config) {
 
 	e.HTTPErrorHandler = httphdl.HTTPErrorHandler
 	e.Validator = httphdl.NewValidator(validate)
-	// with no proxy
 	e.IPExtractor = echo.ExtractIPDirect()
-	// with proxies using X-Forwarded-For header
-	// e.IPExtractor = echo.ExtractIPFromXFFHeader()
 
 	if cfg.Server.Docs {
 		e.GET("/docs/*", echoSwagger.WrapHandler)
@@ -85,11 +82,7 @@ func Execute(cfg *config.Config) {
 				hdl.Tax.Calculate, httphdl.WithBodyParser(), httphdl.WithBodyValidator(),
 			),
 		)
-		taxGroup.POST("/calculations/upload-csv",
-			httphdl.BindRoute(
-				hdl.Tax.CalculateFromCSV,
-			),
-		)
+		taxGroup.POST("/calculations/upload-csv", httphdl.BindRoute(hdl.Tax.CalculateFromCSV))
 	}
 
 	adminGroup := e.Group("/admin")
@@ -99,6 +92,11 @@ func Execute(cfg *config.Config) {
 		adminGroup.POST("/deductions/personal",
 			httphdl.BindRoute(
 				hdl.Admin.UpdatePersonalDeduct, httphdl.WithBodyParser(), httphdl.WithBodyValidator(),
+			),
+		)
+		adminGroup.POST("/deductions/k-receipt",
+			httphdl.BindRoute(
+				hdl.Admin.UpdateKReceiptDeduct, httphdl.WithBodyParser(), httphdl.WithBodyValidator(),
 			),
 		)
 	}

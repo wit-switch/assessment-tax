@@ -55,7 +55,7 @@ var _ = Describe("Admin", func() {
 		ctrl = nil
 	})
 
-	Describe("update tax deduct", func() {
+	Describe("update personal deduction", func() {
 		var (
 			route    string
 			bodyJSON string
@@ -201,6 +201,161 @@ var _ = Describe("Admin", func() {
 					Expect(err).NotTo(HaveOccurred())
 					expectedResp := `{
 						"personalDeduction": 70000
+					}`
+					expected, err := compacJSON(expectedResp)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(actual).To(Equal(expected))
+				})
+			})
+		})
+	})
+
+	Describe("update k-receipt deduction", func() {
+		var (
+			route    string
+			bodyJSON string
+
+			mockTax *domain.TaxDeduct
+
+			mockUpdateTaxDeduct *gomock.Call
+		)
+
+		BeforeEach(func() {
+			// zero = decimal.NewFromFloat(0)
+			route = taxRoute
+			app.POST(route, httphdl.BindRoute(
+				hdl.UpdateKReceiptDeduct,
+				httphdl.WithBodyParser(),
+				httphdl.WithBodyValidator(),
+			))
+
+			bodyJSON = `{
+				"amount": 70000.0
+			}`
+
+			mockTax = &domain.TaxDeduct{
+				Type:      domain.TaxDeductTypeKReceipt,
+				MinAmount: decimal.NewFromFloat(1),
+				MaxAmount: decimal.NewFromFloat(100000),
+				Amount:    decimal.NewFromFloat(70000),
+			}
+
+			mockUpdateTaxDeduct = mockTaxService.EXPECT().
+				UpdateTaxDeduct(ctx, domain.UpdateTaxDeduct{
+					Type:   domain.TaxDeductTypeKReceipt,
+					Amount: decimal.NewFromFloat(70000),
+				}).MinTimes(0)
+		})
+
+		When("request is not valid", func() {
+			Context("with body is invalid", func() {
+				BeforeEach(func() {
+					bodyJSON = `x`
+				})
+				It("should return 400 validate error", func() {
+					code, respBody := request(
+						route,
+						bytes.NewBufferString(bodyJSON),
+						app,
+					)
+					Expect(http.StatusBadRequest).To(Equal(code))
+
+					actual, err := compacJSON(respBody)
+					Expect(err).NotTo(HaveOccurred())
+					expectedResp := `{
+						"code":"400001",
+						"message":"validation error"
+					}`
+					expected, err := compacJSON(expectedResp)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(actual).To(Equal(expected))
+				})
+			})
+
+		})
+
+		When("request is valid", func() {
+			Context("with amount less than limit", func() {
+				BeforeEach(func() {
+					bodyJSON = `{
+						"amount": 0.0
+					}`
+
+					mockUpdateTaxDeduct = mockTaxService.EXPECT().
+						UpdateTaxDeduct(ctx, domain.UpdateTaxDeduct{
+							Type:   domain.TaxDeductTypeKReceipt,
+							Amount: decimal.NewFromFloat(0),
+						})
+				})
+				It("should return 400 bad request", func() {
+					mockUpdateTaxDeduct.Return(nil, errorx.ErrAmountLessThanLimit)
+
+					code, respBody := request(
+						route,
+						bytes.NewBufferString(bodyJSON),
+						app,
+					)
+					Expect(http.StatusBadRequest).To(Equal(code))
+
+					actual, err := compacJSON(respBody)
+					Expect(err).NotTo(HaveOccurred())
+					expectedResp := `{
+						"code":"400102",
+						"message":"amount less than limit"
+					}`
+					expected, err := compacJSON(expectedResp)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(actual).To(Equal(expected))
+				})
+			})
+
+			Context("with amount more than limit", func() {
+				BeforeEach(func() {
+					bodyJSON = `{
+						"amount": 70000000.0
+					}`
+
+					mockUpdateTaxDeduct = mockTaxService.EXPECT().
+						UpdateTaxDeduct(ctx, domain.UpdateTaxDeduct{
+							Type:   domain.TaxDeductTypeKReceipt,
+							Amount: decimal.NewFromFloat(70000000),
+						})
+				})
+				It("should return 400 bad request", func() {
+					mockUpdateTaxDeduct.Return(nil, errorx.ErrAmountMoreThanLimit)
+
+					code, respBody := request(
+						route,
+						bytes.NewBufferString(bodyJSON),
+						app,
+					)
+					Expect(http.StatusBadRequest).To(Equal(code))
+
+					actual, err := compacJSON(respBody)
+					Expect(err).NotTo(HaveOccurred())
+					expectedResp := `{
+						"code":"400101",
+						"message":"amount more than limit"
+					}`
+					expected, err := compacJSON(expectedResp)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(actual).To(Equal(expected))
+				})
+
+				It("should return 200 ok", func() {
+					mockUpdateTaxDeduct.Return(mockTax, nil)
+
+					code, respBody := request(
+						route,
+						bytes.NewBufferString(bodyJSON),
+						app,
+					)
+					Expect(http.StatusOK).To(Equal(code))
+
+					actual, err := compacJSON(respBody)
+					Expect(err).NotTo(HaveOccurred())
+					expectedResp := `{
+						"kReceipt": 70000
 					}`
 					expected, err := compacJSON(expectedResp)
 					Expect(err).NotTo(HaveOccurred())
