@@ -29,6 +29,7 @@ var _ = Describe("Tax", func() {
 		mockTaxService *mocks.MockTaxService
 
 		taxRoute string
+		zero     decimal.Decimal
 	)
 
 	BeforeEach(func() {
@@ -65,6 +66,7 @@ var _ = Describe("Tax", func() {
 		)
 
 		BeforeEach(func() {
+			zero = decimal.NewFromFloat(0)
 			route = taxRoute
 			app.POST(route, httphdl.BindRoute(
 				hdl.Calculate,
@@ -85,6 +87,28 @@ var _ = Describe("Tax", func() {
 
 			mockTax = &domain.Tax{
 				Tax: decimal.NewFromFloat(29000),
+				TaxLevel: []domain.TaxLevel{
+					{
+						Level: "0-150,000",
+						Tax:   zero,
+					},
+					{
+						Level: "150,001-500,000",
+						Tax:   decimal.NewFromFloat(29000),
+					},
+					{
+						Level: "500,001-1,000,000",
+						Tax:   zero,
+					},
+					{
+						Level: "1,000,001-2,000,000",
+						Tax:   zero,
+					},
+					{
+						Level: "2,000,001 ขึ้นไป",
+						Tax:   zero,
+					},
+				},
 			}
 
 			mockCalculate = mockTaxService.EXPECT().
@@ -425,8 +449,30 @@ var _ = Describe("Tax", func() {
 							},
 						})
 
-					mockTax.Tax = decimal.Decimal{}
+					mockTax.Tax = zero
 					mockTax.TaxRefund = decimal.NewFromFloat(1000)
+					mockTax.TaxLevel = []domain.TaxLevel{
+						{
+							Level: "0-150,000",
+							Tax:   zero,
+						},
+						{
+							Level: "150,001-500,000",
+							Tax:   decimal.NewFromFloat(24000),
+						},
+						{
+							Level: "500,001-1,000,000",
+							Tax:   zero,
+						},
+						{
+							Level: "1,000,001-2,000,000",
+							Tax:   zero,
+						},
+						{
+							Level: "2,000,001 ขึ้นไป",
+							Tax:   zero,
+						},
+					}
 				})
 				It("should return tax refund", func() {
 					mockCalculate.Return(mockTax, nil)
@@ -443,7 +489,29 @@ var _ = Describe("Tax", func() {
 
 					expectedResp := `{
 						"tax":0,
-						"taxRefund":1000
+						"taxRefund":1000,
+						"taxLevel": [
+							{
+								"level": "0-150,000",
+								"tax": 0
+							},
+							{
+								"level": "150,001-500,000",
+								"tax": 24000
+							},
+							{
+								"level": "500,001-1,000,000",
+								"tax": 0
+							},
+							{
+								"level": "1,000,001-2,000,000",
+								"tax": 0
+							},
+							{
+								"level": "2,000,001 ขึ้นไป",
+								"tax": 0
+							}
+						]
 					}`
 					expected, err := compacJSON(expectedResp)
 					Expect(err).NotTo(HaveOccurred())
@@ -465,7 +533,29 @@ var _ = Describe("Tax", func() {
 				Expect(err).NotTo(HaveOccurred())
 
 				expectedResp := `{
-					"tax":29000
+					"tax":29000,
+					"taxLevel": [
+					{
+						"level": "0-150,000",
+						"tax": 0
+					},
+					{
+						"level": "150,001-500,000",
+						"tax": 29000
+					},
+					{
+						"level": "500,001-1,000,000",
+						"tax": 0
+					},
+					{
+						"level": "1,000,001-2,000,000",
+						"tax": 0
+					},
+					{
+						"level": "2,000,001 ขึ้นไป",
+						"tax": 0
+					}
+				]
 				}`
 				expected, err := compacJSON(expectedResp)
 				Expect(err).NotTo(HaveOccurred())

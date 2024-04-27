@@ -43,12 +43,21 @@ func (s *Services) Calculate(ctx context.Context, body domain.TaxCalculate) (*do
 	totalIncome := body.TotalIncome.Sub(personal).Sub(donation)
 
 	var totalTax, taxRefund, zero decimal.Decimal
+	taxLevel := make([]domain.TaxLevel, 0, len(taxRates))
 	for _, taxRate := range taxRates {
+		level := domain.TaxLevel{
+			Level: taxRate.Description,
+			Tax:   zero,
+		}
 		if totalIncome.Cmp(taxRate.MinIncome) > 0 {
 			diff := totalIncome.Sub(taxRate.MinIncome)
+			calTax := diff.Mul(taxRate.Rate)
 			totalIncome = totalIncome.Sub(diff)
-			totalTax = totalTax.Add(diff.Mul(taxRate.Rate))
+			totalTax = totalTax.Add(calTax)
+			level.Tax = calTax
 		}
+
+		taxLevel = append([]domain.TaxLevel{level}, taxLevel...)
 	}
 
 	tax := totalTax.Sub(body.Wht)
@@ -60,5 +69,6 @@ func (s *Services) Calculate(ctx context.Context, body domain.TaxCalculate) (*do
 	return &domain.Tax{
 		Tax:       tax,
 		TaxRefund: taxRefund,
+		TaxLevel:  taxLevel,
 	}, nil
 }

@@ -48,12 +48,16 @@ var _ = Describe("Tax", func() {
 			mockTaxDeducts     []domain.TaxDeduct
 
 			mockListTaxDeduct *gomock.Call
+
+			zero decimal.Decimal
 		)
 
 		BeforeEach(func() {
+			zero = decimal.NewFromFloat(0)
+
 			body = domain.TaxCalculate{
 				TotalIncome: decimal.NewFromFloat(500000),
-				Wht:         decimal.Decimal{},
+				Wht:         zero,
 				Allowances: []domain.Allowance{
 					{
 						AllowanceType: domain.TaxDeductTypeDonation,
@@ -70,7 +74,7 @@ var _ = Describe("Tax", func() {
 			}
 			mockDonationDeduct = domain.TaxDeduct{
 				Type:      domain.TaxDeductTypeDonation,
-				MinAmount: decimal.NewFromFloat(0),
+				MinAmount: zero,
 				MaxAmount: decimal.NewFromFloat(100000),
 				Amount:    decimal.NewFromFloat(100000),
 			}
@@ -148,36 +152,81 @@ var _ = Describe("Tax", func() {
 				actual, err := service.Calculate(ctx, body)
 				Expect(actual.Tax.InexactFloat64()).To(Equal(expected.Tax.InexactFloat64()))
 				Expect(actual.TaxRefund.InexactFloat64()).To(Equal(expected.TaxRefund.InexactFloat64()))
+				Expect(actual.TaxLevel).To(BeComparableTo(expected.TaxLevel))
 				Expect(err).NotTo(HaveOccurred())
 			},
 				Entry("with total income is 500000.0",
 					domain.TaxCalculate{
 						TotalIncome: decimal.NewFromFloat(500000),
-						Wht:         decimal.Decimal{},
+						Wht:         zero,
 						Allowances: []domain.Allowance{
 							{
 								AllowanceType: domain.TaxDeductTypeDonation,
-								Amount:        decimal.Decimal{},
+								Amount:        zero,
 							},
 						},
 					},
 					&domain.Tax{
 						Tax: decimal.NewFromFloat(29000),
+						TaxLevel: []domain.TaxLevel{
+							{
+								Level: "0-150,000",
+								Tax:   zero,
+							},
+							{
+								Level: "150,001-500,000",
+								Tax:   decimal.NewFromFloat(29000),
+							},
+							{
+								Level: "500,001-1,000,000",
+								Tax:   zero,
+							},
+							{
+								Level: "1,000,001-2,000,000",
+								Tax:   zero,
+							},
+							{
+								Level: "2,000,001 ขึ้นไป",
+								Tax:   zero,
+							},
+						},
 					},
 				),
 				Entry("with total income is 1000000.0",
 					domain.TaxCalculate{
 						TotalIncome: decimal.NewFromInt(1000000),
-						Wht:         decimal.Decimal{},
+						Wht:         zero,
 						Allowances: []domain.Allowance{
 							{
 								AllowanceType: domain.TaxDeductTypeDonation,
-								Amount:        decimal.Decimal{},
+								Amount:        zero,
 							},
 						},
 					},
 					&domain.Tax{
 						Tax: decimal.NewFromFloat(101000),
+						TaxLevel: []domain.TaxLevel{
+							{
+								Level: "0-150,000",
+								Tax:   zero,
+							},
+							{
+								Level: "150,001-500,000",
+								Tax:   decimal.NewFromFloat(35000),
+							},
+							{
+								Level: "500,001-1,000,000",
+								Tax:   decimal.NewFromFloat(66000),
+							},
+							{
+								Level: "1,000,001-2,000,000",
+								Tax:   zero,
+							},
+							{
+								Level: "2,000,001 ขึ้นไป",
+								Tax:   zero,
+							},
+						},
 					},
 				),
 				Entry("with total income is 500000.0, wth is 25000.0",
@@ -187,12 +236,34 @@ var _ = Describe("Tax", func() {
 						Allowances: []domain.Allowance{
 							{
 								AllowanceType: domain.TaxDeductTypeDonation,
-								Amount:        decimal.Decimal{},
+								Amount:        zero,
 							},
 						},
 					},
 					&domain.Tax{
 						Tax: decimal.NewFromFloat(4000),
+						TaxLevel: []domain.TaxLevel{
+							{
+								Level: "0-150,000",
+								Tax:   zero,
+							},
+							{
+								Level: "150,001-500,000",
+								Tax:   decimal.NewFromFloat(29000),
+							},
+							{
+								Level: "500,001-1,000,000",
+								Tax:   zero,
+							},
+							{
+								Level: "1,000,001-2,000,000",
+								Tax:   zero,
+							},
+							{
+								Level: "2,000,001 ขึ้นไป",
+								Tax:   zero,
+							},
+						},
 					},
 				),
 				Entry("with total income is 450000.0, wth is 25000.0 and have tax refund",
@@ -202,13 +273,35 @@ var _ = Describe("Tax", func() {
 						Allowances: []domain.Allowance{
 							{
 								AllowanceType: domain.TaxDeductTypeDonation,
-								Amount:        decimal.Decimal{},
+								Amount:        zero,
 							},
 						},
 					},
 					&domain.Tax{
 						Tax:       decimal.NewFromFloat(0),
 						TaxRefund: decimal.NewFromFloat(1000),
+						TaxLevel: []domain.TaxLevel{
+							{
+								Level: "0-150,000",
+								Tax:   zero,
+							},
+							{
+								Level: "150,001-500,000",
+								Tax:   decimal.NewFromFloat(24000),
+							},
+							{
+								Level: "500,001-1,000,000",
+								Tax:   zero,
+							},
+							{
+								Level: "1,000,001-2,000,000",
+								Tax:   zero,
+							},
+							{
+								Level: "2,000,001 ขึ้นไป",
+								Tax:   zero,
+							},
+						},
 					},
 				),
 			)
