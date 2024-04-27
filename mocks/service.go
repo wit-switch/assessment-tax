@@ -11,6 +11,7 @@ package mocks
 
 import (
 	context "context"
+	csv "encoding/csv"
 	reflect "reflect"
 
 	domain "github.com/wit-switch/assessment-tax/internal/core/domain"
@@ -53,6 +54,21 @@ func (m *MockTaxService) Calculate(ctx context.Context, body domain.TaxCalculate
 func (mr *MockTaxServiceMockRecorder) Calculate(ctx, body any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Calculate", reflect.TypeOf((*MockTaxService)(nil).Calculate), ctx, body)
+}
+
+// CalculateFromCSV mocks base method.
+func (m *MockTaxService) CalculateFromCSV(ctx context.Context, file csv.Reader) ([]domain.TaxCSV, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CalculateFromCSV", ctx, file)
+	ret0, _ := ret[0].([]domain.TaxCSV)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CalculateFromCSV indicates an expected call of CalculateFromCSV.
+func (mr *MockTaxServiceMockRecorder) CalculateFromCSV(ctx, file any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CalculateFromCSV", reflect.TypeOf((*MockTaxService)(nil).CalculateFromCSV), ctx, file)
 }
 
 // UpdateTaxDeduct mocks base method.

@@ -39,7 +39,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/tax.updateTaxDeductRequest"
+                            "$ref": "#/definitions/admin.updateTaxDeductRequest"
                         }
                     }
                 ],
@@ -47,7 +47,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Success",
                         "schema": {
-                            "$ref": "#/definitions/tax.updatePersonalDeductResponse"
+                            "$ref": "#/definitions/admin.updatePersonalDeductResponse"
                         }
                     },
                     "400": {
@@ -120,9 +120,74 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/tax/calculations/upload-csv": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tax"
+                ],
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": " ",
+                        "name": "taxFile",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/tax.texes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.ResponseError-array_validator_Field"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/http.ResponseError-string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.ResponseError-string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "admin.updatePersonalDeductResponse": {
+            "type": "object",
+            "properties": {
+                "personalDeduction": {
+                    "type": "number"
+                }
+            }
+        },
+        "admin.updateTaxDeductRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number",
+                    "minimum": 0
+                }
+            }
+        },
         "http.ResponseError-array_validator_Field": {
             "type": "object",
             "properties": {
@@ -168,6 +233,20 @@ const docTemplate = `{
                     "type": "number",
                     "minimum": 0,
                     "example": 200000
+                }
+            }
+        },
+        "tax.taxCSV": {
+            "type": "object",
+            "properties": {
+                "tax": {
+                    "type": "number"
+                },
+                "taxRefund": {
+                    "type": "number"
+                },
+                "totalIncome": {
+                    "type": "number"
                 }
             }
         },
@@ -224,20 +303,36 @@ const docTemplate = `{
                 }
             }
         },
-        "tax.updatePersonalDeductResponse": {
+        "tax.texes": {
             "type": "object",
             "properties": {
-                "personalDeduction": {
-                    "type": "number"
+                "texes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/tax.taxCSV"
+                    }
                 }
             }
         },
-        "tax.updateTaxDeductRequest": {
+        "tax.texes": {
             "type": "object",
             "properties": {
-                "amount": {
-                    "type": "number",
-                    "minimum": 0
+                "texes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/tax.taxCSV"
+                    }
+                }
+            }
+        },
+        "tax.texes": {
+            "type": "object",
+            "properties": {
+                "texes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/tax.taxCSV"
+                    }
                 }
             }
         },

@@ -3,7 +3,10 @@ package tax_test
 import (
 	"bytes"
 	"context"
+	"fmt"
+	"mime/multipart"
 	"net/http"
+	"net/http/httptest"
 
 	"github.com/shopspring/decimal"
 	"github.com/wit-switch/assessment-tax/internal/core/domain"
@@ -48,6 +51,7 @@ var _ = Describe("Tax", func() {
 		ctx = context.Background()
 
 		taxRoute = "/tax/calculations"
+		zero = decimal.NewFromFloat(0)
 	})
 
 	AfterEach(func() {
@@ -66,7 +70,6 @@ var _ = Describe("Tax", func() {
 		)
 
 		BeforeEach(func() {
-			zero = decimal.NewFromFloat(0)
 			route = taxRoute
 			app.POST(route, httphdl.BindRoute(
 				hdl.Calculate,
@@ -557,6 +560,135 @@ var _ = Describe("Tax", func() {
 					}
 				]
 				}`
+				expected, err := compacJSON(expectedResp)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(actual).To(Equal(expected))
+			})
+		})
+	})
+
+	Describe("calculate tax from csv", func() {
+		var (
+			route string
+		)
+
+		BeforeEach(func() {
+			route = fmt.Sprintf("%s/upload-csv", taxRoute)
+			app.POST(route, httphdl.BindRoute(
+				hdl.CalculateFromCSV,
+			))
+		})
+
+		When("request is valid", func() {
+			Context("with wrong file name", func() {
+				It("should return  an error", func() {
+					buffer := new(bytes.Buffer)
+					writer := multipart.NewWriter(buffer)
+					formFile, _ := writer.CreateFormFile("File", "taxes.csv")
+
+					csvData := `totalIncome,wht,donation
+500000,0,0
+600000,40000,20000
+750000,50000,15000
+`
+					_, _ = formFile.Write([]byte(csvData))
+					_ = writer.Close()
+
+					mockTaxService.EXPECT().
+						CalculateFromCSV(ctx, gomock.Any()).
+						Times(0)
+
+					req := httptest.NewRequest(http.MethodPost, route, buffer)
+					req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
+					rec := httptest.NewRecorder()
+					// custom error handler only plays with real request
+					app.ServeHTTP(rec, req)
+
+					Expect(http.StatusBadRequest).To(Equal(rec.Code))
+
+					actual, err := compacJSON(rec.Body.String())
+					Expect(err).NotTo(HaveOccurred())
+
+					expectedResp := `{
+						"code":"400001",
+						"message":"validation error",
+						"errors":[
+							{
+								"field":"taxFile",
+								"message":"file in field taxFile is required"
+							}
+						]
+					}`
+
+					expected, err := compacJSON(expectedResp)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(actual).To(Equal(expected))
+				})
+			})
+
+			It("should return taxes", func() {
+				buffer := new(bytes.Buffer)
+				writer := multipart.NewWriter(buffer)
+				formFile, _ := writer.CreateFormFile("taxFile", "taxes.csv")
+
+				csvData := `totalIncome,wht,donation
+500000,0,0
+600000,40000,20000
+750000,50000,15000
+`
+				_, _ = formFile.Write([]byte(csvData))
+				_ = writer.Close()
+
+				mockTaxService.EXPECT().
+					CalculateFromCSV(ctx, gomock.Any()).
+					Times(1).
+					Return([]domain.TaxCSV{
+						{
+							TotalIncome: decimal.NewFromFloat(500000),
+							Tax:         decimal.NewFromFloat(28000),
+							TaxRefund:   zero,
+						},
+						{
+							TotalIncome: decimal.NewFromFloat(600000),
+							Tax:         zero,
+							TaxRefund:   decimal.NewFromFloat(3500),
+						},
+						{
+							TotalIncome: decimal.NewFromFloat(750000),
+							Tax:         decimal.NewFromFloat(9750),
+							TaxRefund:   zero,
+						},
+					}, nil)
+
+				req := httptest.NewRequest(http.MethodPost, route, buffer)
+				req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
+				rec := httptest.NewRecorder()
+				// custom error handler only plays with real request
+				app.ServeHTTP(rec, req)
+
+				Expect(http.StatusOK).To(Equal(rec.Code))
+
+				actual, err := compacJSON(rec.Body.String())
+				Expect(err).NotTo(HaveOccurred())
+
+				expectedResp := `{
+					"texes": [
+						{
+							"totalIncome": 500000,
+							"tax": 28000
+						},
+						{
+							"totalIncome": 600000,
+							"tax": 0,
+							"taxRefund": 3500
+						},
+						{
+							"totalIncome": 750000,
+							"tax": 9750
+						}
+					]
+				}`
+
 				expected, err := compacJSON(expectedResp)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(actual).To(Equal(expected))

@@ -21,3 +21,13 @@ type taxLevel struct {
 	Level string  `json:"level"`
 	Tax   float64 `json:"tax"`
 }
+
+type texes struct {
+	Texes []taxCSV `json:"texes"`
+}
+
+type taxCSV struct {
+	TotalIncome float64 `json:"totalIncome"`
+	Tax         float64 `json:"tax"`
+	TaxRefund   float64 `json:"taxRefund,omitempty"`
+}
