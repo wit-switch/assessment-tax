@@ -10,7 +10,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func (s *Services) Calculate(ctx context.Context, body domain.TaxCalculate) (*domain.Tax, error) {
+func (s *Services) Calculate(ctx context.Context, body domain.TaxCalculate, allowKReceipt bool) (*domain.Tax, error) {
 	taxDeducts, err := s.taxRepository.ListTaxDeduct(ctx, domain.GetTaxDeduct{})
 	if err != nil {
 		return nil, err
@@ -42,7 +42,19 @@ func (s *Services) Calculate(ctx context.Context, body domain.TaxCalculate) (*do
 		return nil, err
 	}
 
-	totalIncome := body.TotalIncome.Sub(personal).Sub(donation)
+	var kReceipt decimal.Decimal
+	if allowKReceipt {
+		kReceiptDeduct, err := GetTaxDeductByType(taxDeductMap, domain.TaxDeductTypeKReceipt)
+		if err != nil {
+			return nil, err
+		}
+		kReceipt, err = GetAllowanceAmount(ctx, kReceiptDeduct, allowanceMap[domain.TaxDeductTypeKReceipt])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	totalIncome := body.TotalIncome.Sub(personal).Sub(donation).Sub(kReceipt)
 
 	var totalTax, taxRefund, zero decimal.Decimal
 	taxLevel := make([]domain.TaxLevel, 0, len(taxRates))

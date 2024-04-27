@@ -47,6 +47,7 @@ var _ = Describe("CSV", func() {
 
 			mockPersonalDeduct domain.TaxDeduct
 			mockDonationDeduct domain.TaxDeduct
+			mockKReceiptDeduct domain.TaxDeduct
 			mockTaxDeducts     []domain.TaxDeduct
 
 			mockListTaxDeduct *gomock.Call
@@ -81,9 +82,16 @@ var _ = Describe("CSV", func() {
 				MaxAmount: decimal.NewFromFloat(100000),
 				Amount:    decimal.NewFromFloat(100000),
 			}
+			mockKReceiptDeduct = domain.TaxDeduct{
+				Type:      domain.TaxDeductTypeKReceipt,
+				MinAmount: decimal.NewFromFloat(1),
+				MaxAmount: decimal.NewFromFloat(100000),
+				Amount:    decimal.NewFromFloat(50000),
+			}
 			mockTaxDeducts = []domain.TaxDeduct{
 				mockPersonalDeduct,
 				mockDonationDeduct,
+				mockKReceiptDeduct,
 			}
 
 			mockListTaxDeduct = mockTaxRepository.EXPECT().
@@ -172,7 +180,7 @@ var _ = Describe("CSV", func() {
 		})
 
 		When("success to calculate tax from csv", func() {
-			It("should return error validate fail", func() {
+			It("should return taxes", func() {
 				mockListTaxDeduct.Return(mockTaxDeducts, nil)
 
 				actual, err := service.CalculateFromCSV(ctx, file)

@@ -42,18 +42,18 @@ func (m *MockTaxService) EXPECT() *MockTaxServiceMockRecorder {
 }
 
 // Calculate mocks base method.
-func (m *MockTaxService) Calculate(ctx context.Context, body domain.TaxCalculate) (*domain.Tax, error) {
+func (m *MockTaxService) Calculate(ctx context.Context, body domain.TaxCalculate, allowKReceipt bool) (*domain.Tax, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Calculate", ctx, body)
+	ret := m.ctrl.Call(m, "Calculate", ctx, body, allowKReceipt)
 	ret0, _ := ret[0].(*domain.Tax)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Calculate indicates an expected call of Calculate.
-func (mr *MockTaxServiceMockRecorder) Calculate(ctx, body any) *gomock.Call {
+func (mr *MockTaxServiceMockRecorder) Calculate(ctx, body, allowKReceipt any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Calculate", reflect.TypeOf((*MockTaxService)(nil).Calculate), ctx, body)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Calculate", reflect.TypeOf((*MockTaxService)(nil).Calculate), ctx, body, allowKReceipt)
 }
 
 // CalculateFromCSV mocks base method.

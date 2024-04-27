@@ -45,6 +45,7 @@ var _ = Describe("Tax", func() {
 
 			mockPersonalDeduct domain.TaxDeduct
 			mockDonationDeduct domain.TaxDeduct
+			mockKReceiptDeduct domain.TaxDeduct
 			mockTaxDeducts     []domain.TaxDeduct
 
 			mockListTaxDeduct *gomock.Call
@@ -63,6 +64,10 @@ var _ = Describe("Tax", func() {
 						AllowanceType: domain.TaxDeductTypeDonation,
 						Amount:        decimal.NewFromFloat(200000),
 					},
+					{
+						AllowanceType: domain.TaxDeductTypeKReceipt,
+						Amount:        decimal.NewFromFloat(1),
+					},
 				},
 			}
 
@@ -78,9 +83,16 @@ var _ = Describe("Tax", func() {
 				MaxAmount: decimal.NewFromFloat(100000),
 				Amount:    decimal.NewFromFloat(100000),
 			}
+			mockKReceiptDeduct = domain.TaxDeduct{
+				Type:      domain.TaxDeductTypeKReceipt,
+				MinAmount: decimal.NewFromFloat(1),
+				MaxAmount: decimal.NewFromFloat(100000),
+				Amount:    decimal.NewFromFloat(50000),
+			}
 			mockTaxDeducts = []domain.TaxDeduct{
 				mockPersonalDeduct,
 				mockDonationDeduct,
+				mockKReceiptDeduct,
 			}
 
 			mockListTaxDeduct = mockTaxRepository.EXPECT().
@@ -93,7 +105,7 @@ var _ = Describe("Tax", func() {
 				It("should return an error", func() {
 					mockListTaxDeduct.Return(nil, errorx.ErrTaxDeductNotFound)
 
-					actual, err := service.Calculate(ctx, body)
+					actual, err := service.Calculate(ctx, body, true)
 					Expect(actual).To(BeNil())
 					Expect(err).To(MatchError(errorx.ErrTaxDeductNotFound))
 				})
@@ -106,7 +118,7 @@ var _ = Describe("Tax", func() {
 				It("should return an error", func() {
 					mockListTaxDeduct.Return(mockTaxDeducts, nil)
 
-					actual, err := service.Calculate(ctx, body)
+					actual, err := service.Calculate(ctx, body, true)
 					Expect(actual).To(BeNil())
 					Expect(err).To(MatchError(errorx.ErrTaxDeductNotFound))
 				})
@@ -121,7 +133,7 @@ var _ = Describe("Tax", func() {
 				It("should return an error", func() {
 					mockListTaxDeduct.Return(mockTaxDeducts, nil)
 
-					actual, err := service.Calculate(ctx, body)
+					actual, err := service.Calculate(ctx, body, true)
 					Expect(actual).To(BeNil())
 					Expect(err).To(MatchError(errorx.ErrTaxDeductNotFound))
 				})
@@ -133,12 +145,13 @@ var _ = Describe("Tax", func() {
 					mockTaxDeducts = []domain.TaxDeduct{
 						mockPersonalDeduct,
 						mockDonationDeduct,
+						mockKReceiptDeduct,
 					}
 				})
 				It("should return an error", func() {
 					mockListTaxDeduct.Return(mockTaxDeducts, nil)
 
-					actual, err := service.Calculate(ctx, body)
+					actual, err := service.Calculate(ctx, body, true)
 					Expect(actual).To(BeNil())
 					Expect(err).To(MatchError(errorx.ErrAmountLessThanLimit))
 				})
@@ -149,7 +162,7 @@ var _ = Describe("Tax", func() {
 			DescribeTable("should return tax without error", func(body domain.TaxCalculate, expected *domain.Tax) {
 				mockListTaxDeduct.Return(mockTaxDeducts, nil)
 
-				actual, err := service.Calculate(ctx, body)
+				actual, err := service.Calculate(ctx, body, true)
 				Expect(actual.Tax.InexactFloat64()).To(Equal(expected.Tax.InexactFloat64()))
 				Expect(actual.TaxRefund.InexactFloat64()).To(Equal(expected.TaxRefund.InexactFloat64()))
 				Expect(actual.TaxLevel).To(BeComparableTo(expected.TaxLevel))
@@ -164,10 +177,14 @@ var _ = Describe("Tax", func() {
 								AllowanceType: domain.TaxDeductTypeDonation,
 								Amount:        zero,
 							},
+							{
+								AllowanceType: domain.TaxDeductTypeKReceipt,
+								Amount:        decimal.NewFromFloat(1),
+							},
 						},
 					},
 					&domain.Tax{
-						Tax: decimal.NewFromFloat(29000),
+						Tax: decimal.NewFromFloat(28999.9),
 						TaxLevel: []domain.TaxLevel{
 							{
 								Level: "0-150,000",
@@ -175,7 +192,7 @@ var _ = Describe("Tax", func() {
 							},
 							{
 								Level: "150,001-500,000",
-								Tax:   decimal.NewFromFloat(29000),
+								Tax:   decimal.NewFromFloat(28999.9),
 							},
 							{
 								Level: "500,001-1,000,000",
@@ -201,10 +218,14 @@ var _ = Describe("Tax", func() {
 								AllowanceType: domain.TaxDeductTypeDonation,
 								Amount:        zero,
 							},
+							{
+								AllowanceType: domain.TaxDeductTypeKReceipt,
+								Amount:        decimal.NewFromFloat(1),
+							},
 						},
 					},
 					&domain.Tax{
-						Tax: decimal.NewFromFloat(101000),
+						Tax: decimal.NewFromFloat(100999.85),
 						TaxLevel: []domain.TaxLevel{
 							{
 								Level: "0-150,000",
@@ -216,7 +237,7 @@ var _ = Describe("Tax", func() {
 							},
 							{
 								Level: "500,001-1,000,000",
-								Tax:   decimal.NewFromFloat(66000),
+								Tax:   decimal.NewFromFloat(65999.85),
 							},
 							{
 								Level: "1,000,001-2,000,000",
@@ -238,10 +259,14 @@ var _ = Describe("Tax", func() {
 								AllowanceType: domain.TaxDeductTypeDonation,
 								Amount:        zero,
 							},
+							{
+								AllowanceType: domain.TaxDeductTypeKReceipt,
+								Amount:        decimal.NewFromFloat(1),
+							},
 						},
 					},
 					&domain.Tax{
-						Tax: decimal.NewFromFloat(4000),
+						Tax: decimal.NewFromFloat(3999.9),
 						TaxLevel: []domain.TaxLevel{
 							{
 								Level: "0-150,000",
@@ -249,7 +274,7 @@ var _ = Describe("Tax", func() {
 							},
 							{
 								Level: "150,001-500,000",
-								Tax:   decimal.NewFromFloat(29000),
+								Tax:   decimal.NewFromFloat(28999.9),
 							},
 							{
 								Level: "500,001-1,000,000",
@@ -275,11 +300,15 @@ var _ = Describe("Tax", func() {
 								AllowanceType: domain.TaxDeductTypeDonation,
 								Amount:        zero,
 							},
+							{
+								AllowanceType: domain.TaxDeductTypeKReceipt,
+								Amount:        decimal.NewFromFloat(1),
+							},
 						},
 					},
 					&domain.Tax{
 						Tax:       decimal.NewFromFloat(0),
-						TaxRefund: decimal.NewFromFloat(1000),
+						TaxRefund: decimal.NewFromFloat(1000.1),
 						TaxLevel: []domain.TaxLevel{
 							{
 								Level: "0-150,000",
@@ -287,7 +316,7 @@ var _ = Describe("Tax", func() {
 							},
 							{
 								Level: "150,001-500,000",
-								Tax:   decimal.NewFromFloat(24000),
+								Tax:   decimal.NewFromFloat(23999.9),
 							},
 							{
 								Level: "500,001-1,000,000",
