@@ -54,7 +54,18 @@ definitions:
     properties:
       tax:
         type: number
+      taxLevel:
+        items:
+          $ref: '#/definitions/tax.taxLevel'
+        type: array
       taxRefund:
+        type: number
+    type: object
+  tax.taxLevel:
+    properties:
+      level:
+        type: string
+      tax:
         type: number
     type: object
   validator.Field:

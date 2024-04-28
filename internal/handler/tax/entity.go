@@ -12,6 +12,12 @@ type allowance struct {
 }
 
 type taxCalculateResponse struct {
-	Tax       float64 `json:"tax"`
-	TaxRefund float64 `json:"taxRefund,omitempty"`
+	Tax       float64    `json:"tax"`
+	TaxRefund float64    `json:"taxRefund,omitempty"`
+	TaxLevel  []taxLevel `json:"taxLevel"`
+}
+
+type taxLevel struct {
+	Level string  `json:"level"`
+	Tax   float64 `json:"tax"`
 }

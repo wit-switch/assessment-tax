@@ -36,6 +36,12 @@ type Allowance struct {
 type Tax struct {
 	Tax       decimal.Decimal
 	TaxRefund decimal.Decimal
+	TaxLevel  []TaxLevel
+}
+
+type TaxLevel struct {
+	Level string
+	Tax   decimal.Decimal
 }
 
 type TaxDeduct struct {

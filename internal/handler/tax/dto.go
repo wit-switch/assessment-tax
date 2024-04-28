@@ -36,5 +36,22 @@ func (d *dto) toTaxCalculateResponse(a domain.Tax) taxCalculateResponse {
 	return taxCalculateResponse{
 		Tax:       a.Tax.InexactFloat64(),
 		TaxRefund: a.TaxRefund.InexactFloat64(),
+		TaxLevel:  d.toTaxLevels(a.TaxLevel),
 	}
+}
+
+func (d *dto) toTaxLevel(a domain.TaxLevel) taxLevel {
+	return taxLevel{
+		Level: a.Level,
+		Tax:   a.Tax.InexactFloat64(),
+	}
+}
+
+func (d *dto) toTaxLevels(a []domain.TaxLevel) []taxLevel {
+	out := make([]taxLevel, len(a))
+	for i, v := range a {
+		out[i] = d.toTaxLevel(v)
+	}
+
+	return out
 }
