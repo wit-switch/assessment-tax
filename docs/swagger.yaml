@@ -16,16 +16,7 @@ definitions:
         minimum: 0
         type: number
     type: object
-  github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string:
-    properties:
-      code:
-        type: string
-      errors:
-        type: string
-      message:
-        type: string
-    type: object
-  http.ResponseError-array_validator_Field:
+  github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-array_validator_Field:
     properties:
       code:
         type: string
@@ -33,6 +24,15 @@ definitions:
         items:
           $ref: '#/definitions/validator.Field'
         type: array
+      message:
+        type: string
+    type: object
+  github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string:
+    properties:
+      code:
+        type: string
+      errors:
+        type: string
       message:
         type: string
     type: object
@@ -56,8 +56,6 @@ definitions:
         type: number
       totalIncome:
         type: number
-    required:
-    - allowanceType
     type: object
   tax.taxCalculateRequest:
     properties:
@@ -136,15 +134,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.ResponseError-array_validator_Field'
+            $ref: '#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-array_validator_Field'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.ResponseError-string'
+            $ref: '#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.ResponseError-string'
+            $ref: '#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string'
       security:
       - BasicAuth: []
       tags:
@@ -170,7 +168,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.ResponseError-array_validator_Field'
+            $ref: '#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-array_validator_Field'
         "404":
           description: Not Found
           schema:
@@ -204,7 +202,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.ResponseError-array_validator_Field'
+            $ref: '#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-array_validator_Field'
         "404":
           description: Not Found
           schema:
@@ -235,7 +233,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.ResponseError-array_validator_Field'
+            $ref: '#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-array_validator_Field'
         "404":
           description: Not Found
           schema:
@@ -244,37 +242,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string'
-      tags:
-      - tax
-  /tax/calculations/upload-csv:
-    post:
-      consumes:
-      - multipart/form-data
-      parameters:
-      - description: ' '
-        in: formData
-        name: taxFile
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: '#/definitions/tax.texes'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/http.ResponseError-array_validator_Field'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/http.ResponseError-string'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/http.ResponseError-string'
       tags:
       - tax
 securityDefinitions:

@@ -53,19 +53,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.ResponseError-array_validator_Field"
+                            "$ref": "#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-array_validator_Field"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/http.ResponseError-string"
+                            "$ref": "#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.ResponseError-string"
+                            "$ref": "#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string"
                         }
                     }
                 }
@@ -108,7 +108,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.ResponseError-array_validator_Field"
+                            "$ref": "#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-array_validator_Field"
                         }
                     },
                     "404": {
@@ -158,7 +158,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.ResponseError-array_validator_Field"
+                            "$ref": "#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-array_validator_Field"
                         }
                     },
                     "404": {
@@ -206,7 +206,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.ResponseError-array_validator_Field"
+                            "$ref": "#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-array_validator_Field"
                         }
                     },
                     "404": {
@@ -219,54 +219,6 @@ const docTemplate = `{
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string"
-                        }
-                    }
-                }
-            }
-        },
-        "/tax/calculations/upload-csv": {
-            "post": {
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tax"
-                ],
-                "parameters": [
-                    {
-                        "type": "file",
-                        "description": " ",
-                        "name": "taxFile",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/tax.texes"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/http.ResponseError-array_validator_Field"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/http.ResponseError-string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/http.ResponseError-string"
                         }
                     }
                 }
@@ -299,21 +251,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "errors": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "http.ResponseError-array_validator_Field": {
+        "github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-array_validator_Field": {
             "type": "object",
             "properties": {
                 "code": {
@@ -324,6 +262,20 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/validator.Field"
                     }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github.com_wit-switch_assessment-tax_internal_handler_http.ResponseError-string": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "errors": {
+                    "type": "string"
                 },
                 "message": {
                     "type": "string"
@@ -344,23 +296,6 @@ const docTemplate = `{
                     "type": "number",
                     "minimum": 0,
                     "example": 200000
-                }
-            }
-        },
-        "tax.taxCSV": {
-            "type": "object",
-            "required": [
-                "allowanceType"
-            ],
-            "properties": {
-                "tax": {
-                    "type": "number"
-                },
-                "taxRefund": {
-                    "type": "number"
-                },
-                "totalIncome": {
-                    "type": "number"
                 }
             }
         },
