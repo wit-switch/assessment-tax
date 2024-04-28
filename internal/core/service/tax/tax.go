@@ -2,8 +2,10 @@ package tax
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/wit-switch/assessment-tax/internal/core/domain"
+	"github.com/wit-switch/assessment-tax/pkg/errorx"
 
 	"github.com/shopspring/decimal"
 )
@@ -71,4 +73,27 @@ func (s *Services) Calculate(ctx context.Context, body domain.TaxCalculate) (*do
 		TaxRefund: taxRefund,
 		TaxLevel:  taxLevel,
 	}, nil
+}
+
+func (s *Services) UpdateTaxDeduct(ctx context.Context, body domain.UpdateTaxDeduct) (*domain.TaxDeduct, error) {
+	deduct, err := s.taxRepository.GetTaxDeductByType(ctx, body.Type)
+	if err != nil {
+		return nil, err
+	}
+
+	if body.Amount.Cmp(deduct.MinAmount) < 0 {
+		params := domain.NewFieldMessageList().Add(
+			"amount", fmt.Sprintf("tax deduct type %s is less than %f", body.Type, deduct.MinAmount.InexactFloat64()),
+		).Value()
+		return nil, errorx.ErrAmountLessThanLimit.WithParams(params)
+	}
+
+	if body.Amount.Cmp(deduct.MaxAmount) > 0 {
+		params := domain.NewFieldMessageList().Add(
+			"amount", fmt.Sprintf("tax deduct type %s is more than %f", body.Type, deduct.MaxAmount.InexactFloat64()),
+		).Value()
+		return nil, errorx.ErrAmountMoreThanLimit.WithParams(params)
+	}
+
+	return s.taxRepository.UpdateTaxDeduct(ctx, body)
 }

@@ -1,6 +1,8 @@
 package tax
 
-import "github.com/wit-switch/assessment-tax/internal/core/domain"
+import (
+	"github.com/wit-switch/assessment-tax/internal/core/domain"
+)
 
 type dto struct{}
 
@@ -32,5 +34,12 @@ func (d *dto) toGetTaxDeduct(a domain.GetTaxDeduct) getTaxDeduct {
 
 	return getTaxDeduct{
 		Type: deductType,
+	}
+}
+
+func (d *dto) tpUpdateTaxDeduct(a domain.UpdateTaxDeduct) updateTaxDeduct {
+	return updateTaxDeduct{
+		Type:   taxDeductType(a.Type),
+		Amount: a.Amount,
 	}
 }

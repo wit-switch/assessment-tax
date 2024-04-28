@@ -40,6 +40,21 @@ func (m *MockTaxRepository) EXPECT() *MockTaxRepositoryMockRecorder {
 	return m.recorder
 }
 
+// GetTaxDeductByType mocks base method.
+func (m *MockTaxRepository) GetTaxDeductByType(ctx context.Context, q domain.TaxDeductType) (*domain.TaxDeduct, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTaxDeductByType", ctx, q)
+	ret0, _ := ret[0].(*domain.TaxDeduct)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTaxDeductByType indicates an expected call of GetTaxDeductByType.
+func (mr *MockTaxRepositoryMockRecorder) GetTaxDeductByType(ctx, q any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTaxDeductByType", reflect.TypeOf((*MockTaxRepository)(nil).GetTaxDeductByType), ctx, q)
+}
+
 // ListTaxDeduct mocks base method.
 func (m *MockTaxRepository) ListTaxDeduct(ctx context.Context, q domain.GetTaxDeduct) ([]domain.TaxDeduct, error) {
 	m.ctrl.T.Helper()
@@ -53,4 +68,19 @@ func (m *MockTaxRepository) ListTaxDeduct(ctx context.Context, q domain.GetTaxDe
 func (mr *MockTaxRepositoryMockRecorder) ListTaxDeduct(ctx, q any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTaxDeduct", reflect.TypeOf((*MockTaxRepository)(nil).ListTaxDeduct), ctx, q)
+}
+
+// UpdateTaxDeduct mocks base method.
+func (m *MockTaxRepository) UpdateTaxDeduct(ctx context.Context, u domain.UpdateTaxDeduct) (*domain.TaxDeduct, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateTaxDeduct", ctx, u)
+	ret0, _ := ret[0].(*domain.TaxDeduct)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateTaxDeduct indicates an expected call of UpdateTaxDeduct.
+func (mr *MockTaxRepositoryMockRecorder) UpdateTaxDeduct(ctx, u any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTaxDeduct", reflect.TypeOf((*MockTaxRepository)(nil).UpdateTaxDeduct), ctx, u)
 }

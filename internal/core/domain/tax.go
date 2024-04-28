@@ -54,3 +54,8 @@ type TaxDeduct struct {
 type GetTaxDeduct struct {
 	Type TaxDeductType
 }
+
+type UpdateTaxDeduct struct {
+	Type   TaxDeductType
+	Amount decimal.Decimal
+}

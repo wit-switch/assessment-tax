@@ -54,3 +54,18 @@ func (mr *MockTaxServiceMockRecorder) Calculate(ctx, body any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Calculate", reflect.TypeOf((*MockTaxService)(nil).Calculate), ctx, body)
 }
+
+// UpdateTaxDeduct mocks base method.
+func (m *MockTaxService) UpdateTaxDeduct(ctx context.Context, body domain.UpdateTaxDeduct) (*domain.TaxDeduct, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateTaxDeduct", ctx, body)
+	ret0, _ := ret[0].(*domain.TaxDeduct)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateTaxDeduct indicates an expected call of UpdateTaxDeduct.
+func (mr *MockTaxServiceMockRecorder) UpdateTaxDeduct(ctx, body any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTaxDeduct", reflect.TypeOf((*MockTaxService)(nil).UpdateTaxDeduct), ctx, body)
+}

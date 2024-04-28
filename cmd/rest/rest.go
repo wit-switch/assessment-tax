@@ -20,14 +20,19 @@ import (
 	"github.com/wit-switch/assessment-tax/pkg/errorx"
 	"github.com/wit-switch/assessment-tax/pkg/validator"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
+// Execute ...
 // @title       Assessment Tax API
 // @version     1.0
 // @description This is a assessment tax api.
 // @BasePath    /
+// @securityDefinitions.basic BasicAuth
+// @name                      Authorization
+// @description               BasicAuth protects our entity endpoints.
 func Execute(cfg *config.Config) {
 	validate, err := validator.New()
 	if err != nil {
@@ -41,19 +46,11 @@ func Execute(cfg *config.Config) {
 		os.Exit(1)
 	}
 
-	repositories := repository.New(repository.Dependencies{
-		DB: dbClient,
-	})
+	hdl := getHandler(dbClient)
 
-	services := service.New(service.Dependencies{
-		Repositories: repositories,
+	mdw := middleware.NewMiddleware(middleware.Dependencies{
+		Auth: cfg.Auth,
 	})
-
-	hdl := handler.New(handler.Dependencies{
-		Services: services,
-	})
-
-	mdw := middleware.NewMiddleware(middleware.Dependencies{})
 
 	e := echo.New()
 
@@ -85,9 +82,18 @@ func Execute(cfg *config.Config) {
 	{
 		taxGroup.POST("/calculations",
 			httphdl.BindRoute(
-				hdl.Tax.Calculate,
-				httphdl.WithBodyParser(),
-				httphdl.WithBodyValidator(),
+				hdl.Tax.Calculate, httphdl.WithBodyParser(), httphdl.WithBodyValidator(),
+			),
+		)
+	}
+
+	adminGroup := e.Group("/admin")
+	{
+		adminGroup.Use(mdw.Auth())
+
+		adminGroup.POST("/deductions/personal",
+			httphdl.BindRoute(
+				hdl.Admin.UpdatePersonalDeduct, httphdl.WithBodyParser(), httphdl.WithBodyValidator(),
 			),
 		)
 	}
@@ -124,4 +130,20 @@ func Execute(cfg *config.Config) {
 
 		slog.Info("shutting down the server")
 	}
+}
+
+func getHandler(dbClient *pgxpool.Pool) *handler.Handler {
+	repositories := repository.New(repository.Dependencies{
+		DB: dbClient,
+	})
+
+	services := service.New(service.Dependencies{
+		Repositories: repositories,
+	})
+
+	hdl := handler.New(handler.Dependencies{
+		Services: services,
+	})
+
+	return hdl
 }

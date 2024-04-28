@@ -44,7 +44,11 @@ func GetAllowanceAmount(
 
 	if amount.Cmp(taxDeduct.MinAmount) < 0 {
 		params := domain.NewFieldMessageList().Add(
-			"allowanceType", fmt.Sprintf("allowance type %s is less than limit", taxDeduct.Type),
+			"allowanceType", fmt.Sprintf(
+				"allowance type %s is less than %f",
+				taxDeduct.Type,
+				taxDeduct.MinAmount.InexactFloat64(),
+			),
 		).Value()
 		return amount, errorx.ErrAmountLessThanLimit.WithParams(params)
 	}

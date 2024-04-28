@@ -8,4 +8,5 @@ import (
 
 type TaxService interface {
 	Calculate(ctx context.Context, body domain.TaxCalculate) (*domain.Tax, error)
+	UpdateTaxDeduct(ctx context.Context, body domain.UpdateTaxDeduct) (*domain.TaxDeduct, error)
 }
