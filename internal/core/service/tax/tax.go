@@ -44,13 +44,13 @@ func (s *Services) Calculate(ctx context.Context, body domain.TaxCalculate, allo
 
 	var kReceipt decimal.Decimal
 	if allowKReceipt {
-		kReceiptDeduct, err := GetTaxDeductByType(taxDeductMap, domain.TaxDeductTypeKReceipt)
-		if err != nil {
-			return nil, err
+		kReceiptDeduct, kErr := GetTaxDeductByType(taxDeductMap, domain.TaxDeductTypeKReceipt)
+		if kErr != nil {
+			return nil, kErr
 		}
-		kReceipt, err = GetAllowanceAmount(ctx, kReceiptDeduct, allowanceMap[domain.TaxDeductTypeKReceipt])
-		if err != nil {
-			return nil, err
+		kReceipt, kErr = GetAllowanceAmount(ctx, kReceiptDeduct, allowanceMap[domain.TaxDeductTypeKReceipt])
+		if kErr != nil {
+			return nil, kErr
 		}
 	}
 
