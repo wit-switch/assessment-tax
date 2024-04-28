@@ -55,3 +55,22 @@ func (d *dto) toTaxLevels(a []domain.TaxLevel) []taxLevel {
 
 	return out
 }
+
+func (d *dto) toTaxCSV(a domain.TaxCSV) taxCSV {
+	return taxCSV{
+		TotalIncome: a.TotalIncome.InexactFloat64(),
+		Tax:         a.Tax.InexactFloat64(),
+		TaxRefund:   a.TaxRefund.InexactFloat64(),
+	}
+}
+
+func (d *dto) toTaxes(a []domain.TaxCSV) texes {
+	out := make([]taxCSV, len(a))
+	for i, v := range a {
+		out[i] = d.toTaxCSV(v)
+	}
+
+	return texes{
+		Texes: out,
+	}
+}

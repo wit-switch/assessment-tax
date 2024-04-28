@@ -26,10 +26,10 @@ import (
 )
 
 // Execute ...
-// @title       Assessment Tax API
-// @version     1.0
-// @description This is a assessment tax api.
-// @BasePath    /
+// @title                     Assessment Tax API
+// @version                   1.0
+// @description               This is a assessment tax api.
+// @BasePath                  /
 // @securityDefinitions.basic BasicAuth
 // @name                      Authorization
 // @description               BasicAuth protects our entity endpoints.
@@ -83,6 +83,11 @@ func Execute(cfg *config.Config) {
 		taxGroup.POST("/calculations",
 			httphdl.BindRoute(
 				hdl.Tax.Calculate, httphdl.WithBodyParser(), httphdl.WithBodyValidator(),
+			),
+		)
+		taxGroup.POST("/calculations/upload-csv",
+			httphdl.BindRoute(
+				hdl.Tax.CalculateFromCSV,
 			),
 		)
 	}

@@ -59,3 +59,9 @@ type UpdateTaxDeduct struct {
 	Type   TaxDeductType
 	Amount decimal.Decimal
 }
+
+type TaxCSV struct {
+	TotalIncome decimal.Decimal
+	Tax         decimal.Decimal
+	TaxRefund   decimal.Decimal
+}

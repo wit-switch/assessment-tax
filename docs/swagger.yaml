@@ -1,5 +1,16 @@
 basePath: /
 definitions:
+  admin.updatePersonalDeductResponse:
+    properties:
+      personalDeduction:
+        type: number
+    type: object
+  admin.updateTaxDeductRequest:
+    properties:
+      amount:
+        minimum: 0
+        type: number
+    type: object
   http.ResponseError-array_validator_Field:
     properties:
       code:
@@ -31,6 +42,15 @@ definitions:
         type: number
     required:
     - allowanceType
+    type: object
+  tax.taxCSV:
+    properties:
+      tax:
+        type: number
+      taxRefund:
+        type: number
+      totalIncome:
+        type: number
     type: object
   tax.taxCalculateRequest:
     properties:
@@ -68,16 +88,24 @@ definitions:
       tax:
         type: number
     type: object
-  tax.updatePersonalDeductResponse:
+  tax.texes:
     properties:
-      personalDeduction:
-        type: number
+      texes:
+        items:
+          $ref: '#/definitions/tax.taxCSV'
+        type: array
     type: object
-  tax.updateTaxDeductRequest:
     properties:
-      amount:
-        minimum: 0
-        type: number
+      texes:
+        items:
+          $ref: '#/definitions/tax.taxCSV'
+        type: array
+    type: object
+    properties:
+      texes:
+        items:
+          $ref: '#/definitions/tax.taxCSV'
+        type: array
     type: object
   validator.Field:
     properties:
@@ -102,14 +130,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/tax.updateTaxDeductRequest'
+          $ref: '#/definitions/admin.updateTaxDeductRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Success
           schema:
-            $ref: '#/definitions/tax.updatePersonalDeductResponse'
+            $ref: '#/definitions/admin.updatePersonalDeductResponse'
         "400":
           description: Bad Request
           schema:
@@ -144,6 +172,37 @@ paths:
           description: Success
           schema:
             $ref: '#/definitions/tax.taxCalculateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.ResponseError-array_validator_Field'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.ResponseError-string'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ResponseError-string'
+      tags:
+      - tax
+  /tax/calculations/upload-csv:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: ' '
+        in: formData
+        name: taxFile
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/tax.texes'
         "400":
           description: Bad Request
           schema:
