@@ -1,0 +1,93 @@
+basePath: /
+definitions:
+  http.ResponseError-array_validator_Field:
+    properties:
+      code:
+        type: string
+      errors:
+        items:
+          $ref: '#/definitions/validator.Field'
+        type: array
+      message:
+        type: string
+    type: object
+  http.ResponseError-string:
+    properties:
+      code:
+        type: string
+      errors:
+        type: string
+      message:
+        type: string
+    type: object
+  tax.allowance:
+    properties:
+      allowanceType:
+        type: string
+      amount:
+        type: number
+    type: object
+  tax.taxCalculateRequest:
+    properties:
+      allowances:
+        items:
+          $ref: '#/definitions/tax.allowance'
+        type: array
+      totalIncome:
+        example: 500000
+        minimum: 0
+        type: number
+      wht:
+        type: number
+    type: object
+  tax.taxCalculateResponse:
+    properties:
+      tax:
+        type: number
+    type: object
+  validator.Field:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: This is a assessment tax api.
+  title: Assessment Tax API
+  version: "1.0"
+paths:
+  /tax/calculations:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tax.taxCalculateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/tax.taxCalculateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.ResponseError-array_validator_Field'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.ResponseError-string'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ResponseError-string'
+      tags:
+      - tax
+swagger: "2.0"

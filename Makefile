@@ -20,6 +20,7 @@ init:
 	go install honnef.co/go/tools/cmd/staticcheck@latest
 	go install golang.org/x/vuln/cmd/govulncheck@latest
 	go install github.com/onsi/ginkgo/v2/ginkgo
+	go install github.com/swaggo/swag/cmd/swag@v1.8.7
 
 
 
@@ -31,6 +32,7 @@ init:
 .PHONY: lint
 lint:
 	@echo '== linter =='
+	swag fmt
 	golangci-lint run -v --fix
 
 ## audit: run quality control checks
@@ -51,6 +53,11 @@ gocyclo:
 # ==================================================================================== #
 # DEVELOPMENT
 # ==================================================================================== #
+
+## swag: generate swagger
+.PHONY: swag
+swag:
+	swag init -g ./cmd/rest/rest.go -o ./docs
 
 ## mock: mockgen
 .PHONY: mock

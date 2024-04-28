@@ -1,6 +1,9 @@
 package config
 
-import "os"
+import (
+	"os"
+	"strconv"
+)
 
 type Config struct {
 	Server     *ServerConfig
@@ -11,6 +14,7 @@ type Config struct {
 type ServerConfig struct {
 	Host string
 	Port string
+	Docs bool
 }
 
 type AuthConfig struct {
@@ -25,22 +29,32 @@ type PostgresConfig struct {
 func GetConfig() *Config {
 	return &Config{
 		Server: &ServerConfig{
-			Host: getEnv("HOST", "0.0.0.0"),
-			Port: getEnv("PORT", "8080"),
+			Host: getEnvDefault("HOST", "0.0.0.0"),
+			Port: getEnvDefault("PORT", "8080"),
+			Docs: getBoolDefault("DOCS", true),
 		},
 		Auth: &AuthConfig{
-			Username: getEnv("ADMIN_USERNAME", ""),
-			Password: getEnv("ADMIN_PASSWORD", ""),
+			Username: getEnvDefault("ADMIN_USERNAME", ""),
+			Password: getEnvDefault("ADMIN_PASSWORD", ""),
 		},
 		PostgreSQL: &PostgresConfig{
-			URL: getEnv("DATABASE_URL", ""),
+			URL: getEnvDefault("DATABASE_URL", ""),
 		},
 	}
 }
 
-func getEnv(key, fallback string) string {
+func getEnvDefault(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
 		return value
+	}
+
+	return fallback
+}
+
+func getBoolDefault(key string, fallback bool) bool {
+	value := getEnvDefault(key, strconv.FormatBool(fallback))
+	if val, err := strconv.ParseBool(value); err == nil {
+		return val
 	}
 
 	return fallback

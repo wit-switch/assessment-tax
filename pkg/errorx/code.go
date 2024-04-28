@@ -9,12 +9,14 @@ func (e ErrCode) Int() int {
 var (
 	CodeUnknown        ErrCode
 	CodeValidationFail ErrCode = 1
+	CodeUnauthorized   ErrCode = 2
 
 	CodeTaxDeductNotFound ErrCode = 100
 )
 
 var (
 	ErrValidationFail = NewInternalErr[any](CodeValidationFail)
+	ErrUnauthorized   = NewInternalErr[any](CodeUnauthorized)
 
 	ErrTaxDeductNotFound = NewInternalErr[any](CodeTaxDeductNotFound)
 )
