@@ -12,8 +12,8 @@ const (
 	TaxDeductTypeKReceipt TaxDeductType = "k-receipt"
 )
 
-func (d *TaxDeductType) String() string {
-	return string(*d)
+func (d TaxDeductType) String() string {
+	return string(d)
 }
 
 type TaxRate struct {

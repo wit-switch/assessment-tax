@@ -101,20 +101,30 @@ const docTemplate = `{
         },
         "tax.allowance": {
             "type": "object",
+            "required": [
+                "allowanceType"
+            ],
             "properties": {
                 "allowanceType": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "donation"
                 },
                 "amount": {
-                    "type": "number"
+                    "type": "number",
+                    "minimum": 0,
+                    "example": 200000
                 }
             }
         },
         "tax.taxCalculateRequest": {
             "type": "object",
+            "required": [
+                "allowances"
+            ],
             "properties": {
                 "allowances": {
                     "type": "array",
+                    "uniqueItems": true,
                     "items": {
                         "$ref": "#/definitions/tax.allowance"
                     }

@@ -44,6 +44,7 @@ var _ = Describe("Tax", func() {
 			body domain.TaxCalculate
 
 			mockPersonalDeduct domain.TaxDeduct
+			mockDonationDeduct domain.TaxDeduct
 			mockTaxDeducts     []domain.TaxDeduct
 
 			mockListTaxDeduct *gomock.Call
@@ -56,7 +57,7 @@ var _ = Describe("Tax", func() {
 				Allowances: []domain.Allowance{
 					{
 						AllowanceType: domain.TaxDeductTypeDonation,
-						Amount:        decimal.Decimal{},
+						Amount:        decimal.NewFromFloat(200000),
 					},
 				},
 			}
@@ -67,8 +68,15 @@ var _ = Describe("Tax", func() {
 				MaxAmount: decimal.NewFromFloat(100000),
 				Amount:    decimal.NewFromFloat(60000),
 			}
+			mockDonationDeduct = domain.TaxDeduct{
+				Type:      domain.TaxDeductTypeDonation,
+				MinAmount: decimal.NewFromFloat(0),
+				MaxAmount: decimal.NewFromFloat(100000),
+				Amount:    decimal.NewFromFloat(100000),
+			}
 			mockTaxDeducts = []domain.TaxDeduct{
 				mockPersonalDeduct,
+				mockDonationDeduct,
 			}
 
 			mockListTaxDeduct = mockTaxRepository.EXPECT().
@@ -87,7 +95,7 @@ var _ = Describe("Tax", func() {
 				})
 			})
 
-			Context("with get tax deduct from helper error", func() {
+			Context("with get personal tax deduct from helper error", func() {
 				BeforeEach(func() {
 					mockTaxDeducts = []domain.TaxDeduct{}
 				})
@@ -97,6 +105,38 @@ var _ = Describe("Tax", func() {
 					actual, err := service.Calculate(ctx, body)
 					Expect(actual).To(BeNil())
 					Expect(err).To(MatchError(errorx.ErrTaxDeductNotFound))
+				})
+			})
+
+			Context("with get donation tax deduct from helper error", func() {
+				BeforeEach(func() {
+					mockTaxDeducts = []domain.TaxDeduct{
+						mockPersonalDeduct,
+					}
+				})
+				It("should return an error", func() {
+					mockListTaxDeduct.Return(mockTaxDeducts, nil)
+
+					actual, err := service.Calculate(ctx, body)
+					Expect(actual).To(BeNil())
+					Expect(err).To(MatchError(errorx.ErrTaxDeductNotFound))
+				})
+			})
+
+			Context("with get donation allowance amount from helper error", func() {
+				BeforeEach(func() {
+					mockDonationDeduct.MinAmount = decimal.NewFromFloat(1000000)
+					mockTaxDeducts = []domain.TaxDeduct{
+						mockPersonalDeduct,
+						mockDonationDeduct,
+					}
+				})
+				It("should return an error", func() {
+					mockListTaxDeduct.Return(mockTaxDeducts, nil)
+
+					actual, err := service.Calculate(ctx, body)
+					Expect(actual).To(BeNil())
+					Expect(err).To(MatchError(errorx.ErrAmountLessThanLimit))
 				})
 			})
 		})

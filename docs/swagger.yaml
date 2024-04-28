@@ -23,9 +23,14 @@ definitions:
   tax.allowance:
     properties:
       allowanceType:
+        example: donation
         type: string
       amount:
+        example: 200000
+        minimum: 0
         type: number
+    required:
+    - allowanceType
     type: object
   tax.taxCalculateRequest:
     properties:
@@ -33,6 +38,7 @@ definitions:
         items:
           $ref: '#/definitions/tax.allowance'
         type: array
+        uniqueItems: true
       totalIncome:
         example: 500000
         minimum: 0
@@ -41,6 +47,8 @@ definitions:
         example: 25000
         minimum: 0
         type: number
+    required:
+    - allowances
     type: object
   tax.taxCalculateResponse:
     properties:

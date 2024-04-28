@@ -15,7 +15,8 @@ var _ = Describe("Validator", func() {
 	)
 
 	BeforeEach(func() {
-		validate = httphdl.NewValidator(validator.New())
+		val, _ := validator.New()
+		validate = httphdl.NewValidator(val)
 	})
 
 	Describe("new validator", func() {

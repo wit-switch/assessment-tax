@@ -36,7 +36,8 @@ var _ = Describe("HTTP", func() {
 			app = echo.New()
 			route = "/test"
 
-			app.Validator = httphdl.NewValidator(validator.New())
+			validate, _ := validator.New()
+			app.Validator = httphdl.NewValidator(validate)
 			app.HTTPErrorHandler = httphdl.HTTPErrorHandler
 		})
 
