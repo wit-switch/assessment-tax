@@ -124,7 +124,7 @@ var _ = Describe("Tax", func() {
 							Amount:        decimal.NewFromFloat(0),
 						},
 					},
-				}).
+				}, true).
 				MinTimes(0)
 		})
 
@@ -450,7 +450,7 @@ var _ = Describe("Tax", func() {
 									Amount:        decimal.NewFromFloat(0),
 								},
 							},
-						})
+						}, true)
 
 					mockTax.Tax = zero
 					mockTax.TaxRefund = decimal.NewFromFloat(1000)

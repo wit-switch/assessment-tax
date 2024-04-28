@@ -21,7 +21,7 @@ import (
 // @Router  /tax/calculations [post].
 func (hdl *Handler) Calculate(c echo.Context, _ any, req taxCalculateRequest) (*taxCalculateResponse, error) {
 	body := hdl.dto.toTaxCalculateDomain(req)
-	resp, err := hdl.taxService.Calculate(c.Request().Context(), body)
+	resp, err := hdl.taxService.Calculate(c.Request().Context(), body, true)
 	if err != nil {
 		return nil, err
 	}

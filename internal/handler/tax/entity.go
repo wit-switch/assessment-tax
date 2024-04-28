@@ -7,8 +7,8 @@ type taxCalculateRequest struct {
 }
 
 type allowance struct {
-	AllowanceType string  `json:"allowanceType" validate:"required,with-allowance-type" example:"donation"`
-	Amount        float64 `json:"amount" validate:"gte=0" example:"200000.0"`
+	AllowanceType string  `json:"allowanceType" validate:"required,with-allowance-type" example:"donation,k-receipt"`
+	Amount        float64 `json:"amount" validate:"gte=0" example:"200000.0,100000.0"`
 }
 
 type taxCalculateResponse struct {

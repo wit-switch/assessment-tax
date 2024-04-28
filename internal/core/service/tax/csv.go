@@ -47,7 +47,7 @@ func (s *Services) CalculateFromCSV(ctx context.Context, file csv.Reader) ([]dom
 				AllowanceType: domain.TaxDeductTypeDonation,
 				Amount:        v.Donation.Decimal,
 			}},
-		})
+		}, false)
 		if err != nil {
 			return nil, err
 		}
