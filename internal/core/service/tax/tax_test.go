@@ -107,6 +107,7 @@ var _ = Describe("Tax", func() {
 
 				actual, err := service.Calculate(ctx, body)
 				Expect(actual.Tax.InexactFloat64()).To(Equal(expected.Tax.InexactFloat64()))
+				Expect(actual.TaxRefund.InexactFloat64()).To(Equal(expected.TaxRefund.InexactFloat64()))
 				Expect(err).NotTo(HaveOccurred())
 			},
 				Entry("with total income is 500000.0",
@@ -137,6 +138,37 @@ var _ = Describe("Tax", func() {
 					},
 					&domain.Tax{
 						Tax: decimal.NewFromFloat(101000),
+					},
+				),
+				Entry("with total income is 500000.0, wth is 25000.0",
+					domain.TaxCalculate{
+						TotalIncome: decimal.NewFromInt(500000),
+						Wht:         decimal.NewFromFloat(25000),
+						Allowances: []domain.Allowance{
+							{
+								AllowanceType: domain.TaxDeductTypeDonation,
+								Amount:        decimal.Decimal{},
+							},
+						},
+					},
+					&domain.Tax{
+						Tax: decimal.NewFromFloat(4000),
+					},
+				),
+				Entry("with total income is 450000.0, wth is 25000.0 and have tax refund",
+					domain.TaxCalculate{
+						TotalIncome: decimal.NewFromInt(450000),
+						Wht:         decimal.NewFromFloat(25000),
+						Allowances: []domain.Allowance{
+							{
+								AllowanceType: domain.TaxDeductTypeDonation,
+								Amount:        decimal.Decimal{},
+							},
+						},
+					},
+					&domain.Tax{
+						Tax:       decimal.NewFromFloat(0),
+						TaxRefund: decimal.NewFromFloat(1000),
 					},
 				),
 			)
